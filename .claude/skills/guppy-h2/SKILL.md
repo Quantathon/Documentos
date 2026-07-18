@@ -76,6 +76,15 @@ Nexus routes through the same TKET-based compiler as the physical device. Captur
 - *`.compile()` fails but logic looks fine:* run `.check()` alone first to isolate a type error from a compile/backend issue.
 - *Optimization:* `main.compile(opt_level=...)` controls TKET-based optimization; intrusive quantum passes are off by default to preserve fault tolerance.
 
+## Pitfalls verified empirically (guppylang 0.21.16, 2026-07)
+
+These four failures were hit and fixed while writing a real QAOA program; treat them as current behavior, not speculation:
+
+1. **Module-level Python constants are not visible inside a `@guppy` body.** `N = 3` at module scope then `range(N)` inside the function fails with *"Variable not defined"*. Either hardcode the literal or wrap the reference in `comptime(N)` (import `comptime` from `guppylang.std.builtins`) at *every* use site.
+2. **Rotation gates take `angle`, not `float`.** `rz(q, 1.4)` fails with *"Expected argument of type `angle`, got `float`"*. `angle` (importable from `guppylang.std.quantum`) measures **half-turns**: `angle(x)` represents `x·π` radians, so convert with `angle(theta_radians / math.pi)`. The constant `pi` is also importable and equals `angle(1)`.
+3. **The native ZZ gate is `zz_phase` in `guppylang.std.qsystem`**, not `rzz` in `std.quantum`. Signature `zz_phase(q1, q2, angle)`; convention `ZZPhase(θ) = exp(−i·θ/2 · Z⊗Z)`, so a QAOA cost edge of weight w uses θ = 2·γ·w. One native two-qubit gate per edge instead of a CX–RZ–CX chain (3 gates) — use it for the cost layer. `std.qsystem` also has `zz_max`, `phased_x`, and its own `rz`.
+4. **`@guppy` functions must live in a real `.py` file.** Defining one inside `python -c "..."` or a bare REPL fails at `.check()` with `OSError: could not get source code`, because Guppy re-parses the function's source via `inspect`. Write a script file, even for quick experiments.
+
 ## SDK statement (project deliverable)
 The project requires a ≤200-word note on the chosen SDK. Record honestly as you go: what worked in Guppy (ownership safety, native RZZ, real control flow), what did not (ecosystem maturity vs. Qiskit for optimization helpers), and what was missing. If Guppy proves infeasible in the time budget, documenting the attempt honestly still scores — do not fabricate a smooth experience.
 

@@ -47,7 +47,7 @@ Repeat across ≥2 instance sizes (e.g., 8 and 12 nodes; a larger size for class
 
 - The **0.6924 p=1 guarantee is for 3-regular graphs only**. A grid graph is generally neither 3-regular nor unweighted, so do **not** claim that bound for it. Report the *empirical* ratio you measure, and cite the 3-regular result only as context.
 - QAOA does not beat GW for Max-Cut on any known instance; at p=1 its guaranteed ratio is strictly below GW's 0.878. Put this in the (mandatory) limitations section, with your measured gap and error bars — do not hide it.
-- Warm-start reframing (project-specific): treat warm-start as a *controlled experiment* — "how much does the QAOA–GW gap narrow at fixed depth when seeded with a classical solution?" — not as a claim of beating GW. Report the effect whether or not it helps.
+- Warm-start reframing (project-specific): treat warm-start as a *controlled experiment* — "how much does the QAOA–GW gap narrow at fixed depth when seeded with a classical solution?" — not as a claim of beating GW. Report the effect whether or not it helps. Implementation mechanics and the full framing rules live in the `warm-start-qaoa` skill.
 
 ## Deliverable checklist (maps to the rubric)
 - [ ] Graph data file (nodes, edges, weights, source, simplifications).
@@ -56,9 +56,9 @@ Repeat across ≥2 instance sizes (e.g., 8 and 12 nodes; a larger size for class
 - [ ] Mean ± std over ≥5 seeds per p.
 - [ ] Scaling across ≥2 sizes with honest extrapolation.
 - [ ] Honest-limitations section (the QAOA<GW gap, emulator≠hardware, aggregated-instance caveats).
-- [ ] Single entry point regenerating every figure from fixed seeds.
+- [ ] Single entry point regenerating every figure from fixed seeds (repo architecture in `reproducibility-pipeline`).
 
-Route the final formulation, numbers, and claims through `quantum-code-audit` before submission.
+Route the final formulation, numbers, and claims through `quantum-code-audit` before submission; write them up per `report-pitch-deliverables`.
 
 ## Reference
 - `references/pipeline_recipe.md` — worked brute-force verifier, ratio computation, and the statistics/plotting pattern.
